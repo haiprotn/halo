@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Quảng cáo — {{ site.name }}{% endblock %}
+{% block body %}
+<h1>Quảng cáo — {{ site.name }}</h1>
+<p class="phu">
+  Ảnh tải lên nằm ở VPS. Khách chỉ thấy sau khi bấm <strong>Đẩy xuống router</strong>.
+  Trần {{ max_banners }} ảnh mỗi địa điểm, mỗi ảnh tối đa {{ (max_bytes / 1024)|round|int }} KB —
+  flash router là tài nguyên khan hiếm.
+</p>
+
+<div class="the">
+  <form method="post" action="/quang-cao/{{ site.id }}/tai-len" enctype="multipart/form-data" class="hang">
+    <div style="flex:1 1 300px">
+      <label>Chọn ảnh banner (JPG, PNG, WEBP, GIF)</label>
+      <input type="file" name="file" accept="image/*" required>
+    </div>
+    <div class="hang gon"><button class="chinh">Tải lên</button></div>
+  </form>
+</div>
+
+<div class="hang gon khong-in" style="margin:16px 0">
+  <form method="post" action="/quang-cao/{{ site.id }}/day"><button class="chinh">Đẩy xuống router</button></form>
+  <a class="nut" href="/quang-cao/{{ site.id }}/xem-ads-js" target="_blank">Xem trước ads.js</a>
+  <a class="nut" href="/dia-diem/{{ site.id }}">Về địa điểm</a>
+</div>
+
+{% for b in banners %}
+<div class="the">
+  <div class="luoi luoi-2">
+    <div>
+      <img class="banner-anh" src="/quang-cao/{{ site.id }}/anh/{{ b.id }}" alt="{{ b.original_name }}">
+      <p class="phu" style="margin-top:6px">
+        <code>{{ b.filename }}</code> · {{ b.size_bytes|dung_luong }}<br>
+        Đang chiếu: {{ b.days|thu }}, {{ b.start_time }}–{{ b.end_time }}, trang {{ b.slots }}
+      </p>
+    </div>
+
+    <form method="post" action="/quang-cao/{{ site.id }}/sua/{{ b.id }}">
+      <div class="truong">
+        <label>Ngày trong tuần</label>
+        {% set chon = b.days.split(",") %}
+        {% for i, ten in [("0","T2"),("1","T3"),("2","T4"),("3","T5"),("4","T6"),("5","T7"),("6","CN")] %}
+          <label style="display:inline-block;margin-right:10px;color:var(--muc)">
+            <input type="checkbox" name="days" value="{{ i }}" style="width:auto"
+                   {% if i in chon %}checked{% endif %}> {{ ten }}
+          </label>
+        {% endfor %}
+      </div>
+
+      <div class="hang">
+        <div><label>Từ giờ</label><input name="start_time" value="{{ b.start_time }}" placeholder="11:00"></div>
+        <div><label>Đến giờ</label><input name="end_time" value="{{ b.end_time }}" placeholder="14:00"></div>
+        <div><label>Thứ tự</label><input name="sort_order" type="number" value="{{ b.sort_order }}"></div>
+      </div>
+
+      <div class="truong">
+        <label>Hiện ở trang</label>
+        {% set slot_chon = b.slots.split(",") %}
+        {% for key, ten in [("login","Trang chào (login)"),("alogin","Sau đăng nhập (alogin)"),("status","Trang trạng thái")] %}
+          <label style="display:inline-block;margin-right:12px;color:var(--muc)">
+            <input type="checkbox" name="slots" value="{{ key }}" style="width:auto"
+                   {% if key in slot_chon %}checked{% endif %}> {{ ten }}
+          </label>
+        {% endfor %}
+      </div>
+
+      <div class="truong">
+        <label>Liên kết khi bấm vào banner (để trống nếu không cần)</label>
+        <input name="link_url" value="{{ b.link_url }}" placeholder="https://...">
+      </div>
+
+      <div class="truong">
+        <label style="color:var(--muc)">
+          <input type="checkbox" name="active" style="width:auto" {% if b.active %}checked{% endif %}> Đang bật
+        </label>
+      </div>
+
+      <div class="hang gon">
+        <button class="chinh">Lưu lịch chiếu</button>
+      </div>
+    </form>
+  </div>
+
+  <form method="post" action="/quang-cao/{{ site.id }}/xoa/{{ b.id }}" style="margin-top:10px">
+    <button class="nho nguy">Xóa ảnh này</button>
+    <span class="phu">Xóa ở VPS; file cũ trên router mất sau lần đẩy tiếp theo.</span>
+  </form>
+</div>
+{% else %}
+<div class="the"><p class="phu">Chưa có banner nào.</p></div>
+{% endfor %}
+
+<h2>10 lần đẩy gần nhất</h2>
+<div class="the cuon">
+  <table>
+    <tr><th>Lúc</th><th>Kết quả</th><th>Số file</th><th>Dung lượng</th><th>Ghi chú</th></tr>
+    {% for p in lan_day %}
+    <tr>
+      <td>{{ p.started_at|gio_vn }}</td>
+      <td>{% if p.ok %}<span class="chip on">thành công</span>{% else %}<span class="chip off">lỗi</span>{% endif %}</td>
+      <td>{{ p.files }}</td>
+      <td>{{ p.bytes_sent|dung_luong }}</td>
+      <td class="phu">{{ p.message }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="phu">Chưa đẩy lần nào.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

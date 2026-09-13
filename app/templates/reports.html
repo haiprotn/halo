@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Báo cáo{% endblock %}
+{% block body %}
+<h1>Báo cáo</h1>
+<p class="phu">Đỉnh khách online theo ngày — số này luôn có, không phụ thuộc cấu hình thu thập phiên.</p>
+
+<div class="bao chu-y">
+  <strong>Đọc số cho đúng.</strong> iOS và Android đổi địa chỉ MAC ngẫu nhiên, nên số
+  “thiết bị duy nhất” luôn cao hơn số người thật. <strong>Không dùng con số này để cam kết
+  với nhà tài trợ khi chưa đo pilot.</strong>
+</div>
+
+{% if not collect_sessions %}
+<p class="phu">Thống kê chi tiết từng phiên đang tắt (<code>COLLECT_SESSIONS=false</code>) — đúng với
+  cam kết dữ liệu trong bản thuyết minh gửi khách hàng.</p>
+{% endif %}
+
+<form method="get" class="hang gon" style="margin-bottom:14px">
+  <div><label>Số ngày</label><input name="ngay" type="number" value="{{ ngay }}" min="1" max="90"></div>
+  <div><button>Xem</button></div>
+</form>
+
+<div class="the cuon">
+  <table>
+    <tr><th>Ngày</th><th>Địa điểm</th><th>Đỉnh khách online</th><th>Đỉnh phiên UM</th><th>Trung bình khách</th></tr>
+    {% for r in bang %}
+    <tr>
+      <td>{{ r.ngay }}</td>
+      <td>{{ r.site }}</td>
+      <td><strong>{{ r.dinh_khach }}</strong></td>
+      <td>{{ r.dinh_um }}</td>
+      <td>{{ r.tb_khach }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="phu">Chưa có số đo nào. Tiến trình quét nền cần chạy ít nhất một vòng.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

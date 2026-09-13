@@ -1,0 +1,25 @@
+# ★ FILE NÀY PHẢI CÓ TRƯỚC LẦN COMMIT ĐẦU TIÊN.
+# Lỡ đẩy .env lên GitHub thì xóa file KHÔNG đủ — APP_KEY nằm trong lịch sử git
+# vĩnh viễn; phải sinh khóa mới và mã hóa lại mật khẩu router ở MỌI địa điểm.
+
+.env
+.env.*
+!.env.example
+
+data/
+*.db
+*.sqlite3
+
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+*.log
+*.swp
+.DS_Store
+.idea/
+.vscode/

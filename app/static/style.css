@@ -1,0 +1,142 @@
+/* Giao diện thuần CSS — không framework, không bước build, không tải gì từ CDN.
+   Lý do: VPS có thể bị chặn mạng ra ngoài, và trang quản trị phải mở được cả
+   khi ngồi ở địa điểm bằng 4G yếu. */
+
+:root {
+  --do: #ee0033;          /* màu thương hiệu tạm, đổi ở đúng một chỗ này */
+  --do-nhat: #fff1f3;
+  --muc: #16181d;
+  --xam: #6b7280;
+  --vien: #e5e7eb;
+  --nen: #f7f8fa;
+  --xanh: #0f9d58;
+  --cam: #d97706;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--muc);
+  background: var(--nen);
+}
+
+a { color: var(--do); }
+
+header.top {
+  background: #fff;
+  border-bottom: 1px solid var(--vien);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.top-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo { font-weight: 700; color: var(--do); text-decoration: none; font-size: 17px; }
+nav { display: flex; flex-wrap: wrap; gap: 14px; }
+nav a { color: var(--muc); text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
+nav a:hover, nav a.active { border-bottom-color: var(--do); }
+.top .phai { margin-left: auto; color: var(--xam); font-size: 13px; display: flex; gap: 12px; align-items: center; }
+
+main { max-width: 1120px; margin: 0 auto; padding: 20px 16px 60px; }
+
+h1 { font-size: 22px; margin: 0 0 4px; }
+h2 { font-size: 17px; margin: 28px 0 10px; }
+h3 { font-size: 15px; margin: 18px 0 8px; }
+.phu { color: var(--xam); font-size: 13px; margin: 0 0 18px; }
+
+.the {
+  background: #fff;
+  border: 1px solid var(--vien);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.luoi { display: grid; gap: 14px; }
+.luoi-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.luoi-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+.so-lieu { background: #fff; border: 1px solid var(--vien); border-radius: 10px; padding: 14px 16px; }
+.so-lieu .nhan { color: var(--xam); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.so-lieu .so { font-size: 26px; font-weight: 700; margin-top: 2px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--vien); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .03em; color: var(--xam); font-weight: 600; }
+tr:last-child td { border-bottom: none; }
+.cuon { overflow-x: auto; }
+
+.chip { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.chip.on { background: #e7f6ed; color: var(--xanh); }
+.chip.off { background: #fdeaea; color: var(--do); }
+.chip.cho { background: #fef3e2; color: var(--cam); }
+.chip.xam { background: #eef0f3; color: var(--xam); }
+
+button, .nut {
+  font: inherit;
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--vien);
+  background: #fff;
+  color: var(--muc);
+  cursor: pointer;
+  text-decoration: none;
+}
+button:hover, .nut:hover { border-color: var(--xam); }
+button.chinh, .nut.chinh { background: var(--do); border-color: var(--do); color: #fff; }
+button.nho, .nut.nho { padding: 4px 10px; font-size: 13px; }
+button.nguy { color: var(--do); }
+
+input, select, textarea {
+  font: inherit;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--vien);
+  border-radius: 8px;
+  background: #fff;
+}
+label { display: block; font-size: 13px; color: var(--xam); margin-bottom: 4px; }
+.truong { margin-bottom: 12px; }
+.hang { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.hang > * { flex: 1 1 180px; }
+.hang.gon > * { flex: 0 0 auto; }
+
+.bao { padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: 14px; }
+.bao.ok { background: #e7f6ed; border: 1px solid #b9e3c9; }
+.bao.loi { background: var(--do-nhat); border: 1px solid #f5c2cb; }
+.bao.chu-y { background: #fff8e6; border: 1px solid #f3ddb0; }
+
+.kiem-tra li { margin-bottom: 8px; }
+.kiem-tra .dat::before { content: "✓ "; color: var(--xanh); font-weight: 700; }
+.kiem-tra .hong::before { content: "✕ "; color: var(--do); font-weight: 700; }
+.goi-y { color: var(--xam); font-size: 13px; margin: 2px 0 0 16px; }
+
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
+pre { background: #0f1115; color: #e6e6e6; padding: 14px; border-radius: 10px; overflow-x: auto; }
+code { background: #eef0f3; padding: 1px 5px; border-radius: 4px; }
+
+.banner-anh { max-width: 240px; border-radius: 6px; border: 1px solid var(--vien); display: block; }
+
+@media print {
+  header.top, .khong-in { display: none !important; }
+  body { background: #fff; }
+  main { max-width: none; padding: 0; }
+}
+
+.phieu { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.phieu .o { border: 1px dashed #999; border-radius: 8px; padding: 10px; text-align: center; }
+.phieu .ma { font-family: ui-monospace, monospace; font-size: 20px; font-weight: 700; letter-spacing: .08em; }

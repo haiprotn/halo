@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Địa điểm{% endblock %}
+{% block body %}
+<h1>Địa điểm</h1>
+<p class="phu">{{ sites|length }} địa điểm bạn được phép xem.</p>
+
+<div class="the cuon">
+  <table>
+    <tr>
+      <th>Tên</th><th>Địa chỉ</th><th>WireGuard</th><th>Router</th>
+      <th>Trạng thái</th><th>Khách</th><th></th>
+    </tr>
+    {% for s in sites %}
+    {% set st = statuses.get(s.id) %}
+    <tr>
+      <td><a href="/dia-diem/{{ s.id }}">{{ s.name }}</a></td>
+      <td class="phu">{{ s.address or "—" }}</td>
+      <td><code>{{ s.wg_ip }}</code></td>
+      <td class="phu">{{ (st.board_name ~ " · " ~ st.version) if st and st.board_name else "—" }}</td>
+      <td>
+        {% if st and st.online %}<span class="chip on">online</span>
+        {% elif st %}<span class="chip off">mất kết nối</span>
+        {% else %}<span class="chip xam">chưa quét</span>{% endif %}
+      </td>
+      <td>{{ st.hotspot_active if st else 0 }}</td>
+      <td>
+        <a class="nut nho" href="/quang-cao/{{ s.id }}">Quảng cáo</a>
+        <a class="nut nho" href="/voucher/{{ s.id }}">Voucher</a>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="phu">Chưa có địa điểm nào.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

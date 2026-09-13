@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Nhật ký thao tác{% endblock %}
+{% block body %}
+<h1>Nhật ký thao tác</h1>
+<p class="phu">200 thao tác gần nhất. Chỉ ghi việc làm thay đổi dữ liệu hoặc chạm tới router.</p>
+
+<div class="the cuon">
+  <table>
+    <tr><th>Lúc</th><th>Người dùng</th><th>Hành động</th><th>Đối tượng</th><th>Chi tiết</th><th>IP</th></tr>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.at|gio_vn }}</td>
+      <td>{{ r.username or "—" }}</td>
+      <td><code>{{ r.action }}</code></td>
+      <td>{{ r.target or "—" }}</td>
+      <td class="phu">{{ r.detail or "" }}</td>
+      <td class="phu">{{ r.ip }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="phu">Chưa có gì.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

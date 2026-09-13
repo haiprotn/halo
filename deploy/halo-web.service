@@ -1,0 +1,31 @@
+[Unit]
+Description=Halo — cong quan tri WiFi (web)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=halo
+Group=halo
+WorkingDirectory=/srv/app/halo
+EnvironmentFile=/srv/app/halo/.env
+# ProtectSystem=strict khiến thư mục mã nguồn chỉ đọc → Python không ghi được
+# __pycache__. Tắt hẳn cho đỡ thử vô ích, và bỏ đệm để log ra journal ngay.
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/srv/app/halo/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8081 --proxy-headers --forwarded-allow-ips 127.0.0.1
+Restart=always
+RestartSec=3
+
+# Siết quyền: tiến trình web chỉ được ghi vào thư mục dữ liệu của chính nó
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/app/halo/data
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

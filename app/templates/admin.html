@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Quản trị{% endblock %}
+{% block body %}
+<h1>Quản trị</h1>
+<p class="phu">Thêm một khách hàng mới theo 6 bước: khách hàng → địa điểm → tài khoản →
+  khối lệnh cho router → khai peer ở VPS → nhập mật khẩu router.</p>
+
+<h2>1. Khách hàng</h2>
+<div class="the">
+  <form method="post" action="/quan-tri/khach-hang" class="hang">
+    <div><label>Tên khách hàng</label><input name="name" required></div>
+    <div><label>Ghi chú</label><input name="note"></div>
+    <div class="hang gon"><button class="chinh">Thêm</button></div>
+  </form>
+  <div class="cuon" style="margin-top:12px">
+    <table>
+      <tr><th>Tên</th><th>Số địa điểm</th><th>Ghi chú</th></tr>
+      {% for t in tenants %}
+      <tr><td>{{ t.name }}</td><td>{{ t.sites|length }}</td><td class="phu">{{ t.note }}</td></tr>
+      {% else %}<tr><td colspan="3" class="phu">Chưa có khách hàng nào.</td></tr>{% endfor %}
+    </table>
+  </div>
+</div>
+
+<h2>2. Địa điểm</h2>
+<div class="the">
+  <form method="post" action="/quan-tri/dia-diem" class="hang">
+    <div>
+      <label>Khách hàng</label>
+      <select name="tenant_id" required>
+        {% for t in tenants %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <div><label>Tên địa điểm</label><input name="name" required></div>
+    <div><label>Địa chỉ</label><input name="address"></div>
+    <div><label>Thư mục portal trên router</label><input name="hotspot_dir" value="hotspot-vn"></div>
+    <div class="hang gon"><button class="chinh">Thêm địa điểm</button></div>
+  </form>
+  <p class="phu" style="margin-bottom:0">Hệ thống tự cấp địa chỉ WireGuard còn trống trong dải
+    <code>{{ wg_prefix }}0/24</code> và sinh cặp khóa cho router.</p>
+</div>
+
+{% for s in sites %}
+<div class="the">
+  <h3 style="margin-top:0">{{ s.name }} <span class="phu">· {{ s.tenant.name }} ·
+    <code>{{ s.wg_ip }}</code></span></h3>
+
+  <form method="post" action="/quan-tri/dia-diem/{{ s.id }}">
+    <div class="hang">
+      <div><label>Tên</label><input name="name" value="{{ s.name }}" required></div>
+      <div><label>Địa chỉ</label><input name="address" value="{{ s.address }}"></div>
+      <div><label>Thư mục portal</label><input name="hotspot_dir" value="{{ s.hotspot_dir }}"></div>
+    </div>
+    <div class="hang">
+      <div><label>Tài khoản REST</label><input name="rest_user" value="{{ s.rest_user }}"></div>
+      <div><label>Cổng REST</label><input name="rest_port" type="number" value="{{ s.rest_port }}"></div>
+      <div><label>Mật khẩu REST {% if s.rest_password_enc %}(đã lưu){% endif %}</label>
+        <input name="rest_password" type="password" placeholder="để trống = giữ nguyên"></div>
+    </div>
+    <div class="hang">
+      <div><label>Tài khoản SFTP</label><input name="sftp_user" value="{{ s.sftp_user }}"></div>
+      <div><label>Cổng SFTP</label><input name="sftp_port" type="number" value="{{ s.sftp_port }}"></div>
+      <div><label>Mật khẩu SFTP {% if s.sftp_password_enc %}(đã lưu){% endif %}</label>
+        <input name="sftp_password" type="password" placeholder="để trống = giữ nguyên"></div>
+    </div>
+    <div class="hang gon">
+      <label style="color:var(--muc)">
+        <input type="checkbox" name="active" style="width:auto" {% if s.active %}checked{% endif %}> Đang hoạt động
+      </label>
+      <button class="chinh">Lưu</button>
+      <a class="nut" href="/quan-tri/dia-diem/{{ s.id }}/rsc" target="_blank">Khối lệnh cho router</a>
+      <a class="nut" href="/dia-diem/{{ s.id }}">Xem trạng thái</a>
+    </div>
+  </form>
+
+  <p class="phu" style="margin-bottom:0">
+    Khóa công khai WireGuard của router: <code>{{ s.wg_public_key or "(chưa sinh)" }}</code><br>
+    Trên VPS chạy: <code>wg set wg0 peer {{ s.wg_public_key }} allowed-ips {{ s.wg_ip }}/32 &amp;&amp; wg-quick save wg0</code>
+  </p>
+</div>
+{% endfor %}
+
+<h2>3. Tài khoản</h2>
+<div class="the">
+  <form method="post" action="/quan-tri/tai-khoan" class="hang">
+    <div><label>Tên đăng nhập</label><input name="username" required></div>
+    <div><label>Họ tên</label><input name="full_name"></div>
+    <div>
+      <label>Vai trò</label>
+      <select name="role">
+        <option value="tenant">Khách hàng</option>
+        <option value="admin">Quản trị hệ thống</option>
+      </select>
+    </div>
+    <div>
+      <label>Thuộc khách hàng</label>
+      <select name="tenant_id">
+        <option value="">— (chỉ dành cho quản trị) —</option>
+        {% for t in tenants %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <div><label>Mật khẩu (bỏ trống = sinh tự động)</label><input name="password" type="password"></div>
+    <div class="hang gon"><button class="chinh">Tạo</button></div>
+  </form>
+
+  <div class="cuon" style="margin-top:12px">
+    <table>
+      <tr><th>Tên đăng nhập</th><th>Họ tên</th><th>Vai trò</th><th>Khách hàng</th>
+        <th>Đăng nhập lần cuối</th><th></th></tr>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.username }} {% if not u.active %}<span class="chip off">đã khóa</span>{% endif %}</td>
+        <td>{{ u.full_name or "—" }}</td>
+        <td>{{ "quản trị" if u.is_admin else "khách hàng" }}</td>
+        <td>{{ u.tenant.name if u.tenant else "—" }}</td>
+        <td class="phu">{{ u.last_login_at|truoc_day }}</td>
+        <td>
+          <form method="post" action="/quan-tri/tai-khoan/{{ u.id }}/bat-tat" style="display:inline">
+            <button class="nho">{{ "Khóa" if u.active else "Mở" }}</button>
+          </form>
+          <form method="post" action="/quan-tri/tai-khoan/{{ u.id }}/dat-lai-mat-khau" style="display:inline">
+            <button class="nho">Đặt lại mật khẩu</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}

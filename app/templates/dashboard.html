@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Tổng quan{% endblock %}
+{% block body %}
+<h1>Tổng quan</h1>
+<p class="phu">Số liệu cập nhật mỗi 60 giây bởi tiến trình quét nền.</p>
+
+{% if not collect_sessions %}
+<div class="bao chu-y">
+  <strong>Chế độ dữ liệu tối thiểu đang bật.</strong>
+  Hệ thống chỉ lưu số đếm tổng hợp, không lưu chi tiết từng phiên của khách —
+  giữ đúng câu “dữ liệu không rời khỏi khuôn viên” trong bản thuyết minh gửi khách hàng.
+  Bật <code>COLLECT_SESSIONS=true</code> là <strong>phải sửa mục luồng dữ liệu trong bản Word trước khi gửi</strong>.
+</div>
+{% else %}
+<div class="bao loi">
+  <strong>COLLECT_SESSIONS đang bật.</strong> Hệ thống đang lưu chi tiết phiên.
+  Kiểm tra lại mục “luồng dữ liệu” trong bản thuyết minh Word — câu
+  “dữ liệu không rời khỏi khuôn viên” không còn đúng nữa.
+</div>
+{% endif %}
+
+{% if canh_bao_um %}<div class="bao chu-y">{{ canh_bao_um }}</div>{% endif %}
+
+<div class="luoi luoi-4">
+  <div class="so-lieu"><div class="nhan">Địa điểm online</div><div class="so">{{ tong_online }}/{{ sites|length }}</div></div>
+  <div class="so-lieu"><div class="nhan">Khách đang online</div><div class="so">{{ tong_khach }}</div></div>
+  <div class="so-lieu"><div class="nhan">Phiên User Manager</div><div class="so">{{ tong_um }}</div></div>
+  <div class="so-lieu"><div class="nhan">Voucher còn hiệu lực</div><div class="so">{{ voucher_con }}</div></div>
+</div>
+
+{% if alerts %}
+<h2>Cảnh báo đang mở ({{ alerts|length }})</h2>
+<div class="the cuon">
+  <table>
+    <tr><th>Mở lúc</th><th>Loại</th><th>Nội dung</th></tr>
+    {% for a in alerts %}
+    <tr>
+      <td>{{ a.opened_at|truoc_day }}</td>
+      <td><span class="chip {{ 'off' if a.severity == 'error' else 'cho' }}">{{ a.kind }}</span></td>
+      <td>{{ a.message }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+<h2>Địa điểm</h2>
+<div class="the cuon">
+  <table>
+    <tr><th>Tên</th><th>Trạng thái</th><th>Khách</th><th>Phiên UM</th><th>Cập nhật</th><th></th></tr>
+    {% for s in sites %}
+    {% set st = statuses.get(s.id) %}
+    <tr>
+      <td><a href="/dia-diem/{{ s.id }}">{{ s.name }}</a><br><span class="phu">{{ s.wg_ip }}</span></td>
+      <td>
+        {% if st and st.online %}<span class="chip on">online</span>
+        {% elif st %}<span class="chip off">mất kết nối</span>
+        {% else %}<span class="chip xam">chưa quét</span>{% endif %}
+      </td>
+      <td>{{ st.hotspot_active if st else 0 }}</td>
+      <td>{{ st.um_sessions if st else 0 }}</td>
+      <td>{{ st.updated_at|truoc_day if st else "—" }}</td>
+      <td>
+        <a class="nut nho" href="/quang-cao/{{ s.id }}">Quảng cáo</a>
+        <a class="nut nho" href="/voucher/{{ s.id }}">Voucher</a>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="phu">Chưa có địa điểm nào. Vào mục Quản trị để thêm.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Voucher — {{ site.name }}{% endblock %}
+{% block body %}
+<h1>Voucher — {{ site.name }}</h1>
+<p class="phu">Mã sinh ra ở VPS trước, đẩy lên User Manager sau. Không có tác vụ nền nào tự đẩy.</p>
+
+{% if canh_bao %}<div class="bao chu-y">{{ canh_bao }}</div>{% endif %}
+{% if loi_goi_cuoc %}<div class="bao chu-y">{{ loi_goi_cuoc }}</div>{% endif %}
+
+<div class="luoi luoi-4">
+  <div class="so-lieu"><div class="nhan">Mới (chưa đẩy)</div><div class="so">{{ dem.get("moi", 0) }}</div></div>
+  <div class="so-lieu"><div class="nhan">Trên router</div><div class="so">{{ dem.get("tren_router", 0) }}</div></div>
+  <div class="so-lieu"><div class="nhan">Hết hạn</div><div class="so">{{ dem.get("het_han", 0) }}</div></div>
+  <div class="so-lieu"><div class="nhan">Lỗi khi đẩy</div><div class="so">{{ dem.get("loi", 0) }}</div></div>
+</div>
+
+<div class="the">
+  <h3 style="margin-top:0">Sinh lô mã mới</h3>
+  <form method="post" action="/voucher/{{ site.id }}/sinh" class="hang">
+    <div>
+      <label>Gói cước trên User Manager</label>
+      {% if goi_cuoc %}
+      <select name="profile_name" required>
+        {% for g in goi_cuoc %}<option value="{{ g }}">{{ g }}</option>{% endfor %}
+      </select>
+      {% else %}
+      <input name="profile_name" placeholder="vd: 1h" required>
+      {% endif %}
+    </div>
+    <div><label>Số lượng</label><input name="quantity" type="number" value="20" min="1" max="500" required></div>
+    <div><label>Ghi chú</label><input name="note" placeholder="vd: quầy lễ tân"></div>
+    <div style="flex:0 0 auto">
+      <label style="color:var(--muc)">
+        <input type="checkbox" name="day_luon" style="width:auto"> Đẩy lên router luôn
+      </label>
+    </div>
+    <div class="hang gon"><button class="chinh">Sinh mã</button></div>
+  </form>
+  <p class="phu" style="margin-bottom:0">
+    Bộ ký tự đã bỏ <code>0 O 1 l i</code> để khách đọc phiếu in không nhầm.
+    Nếu gán gói cước lỗi, hệ thống <strong>tự xóa tài khoản vừa tạo</strong> — không để lại
+    tài khoản không giới hạn trên router.
+  </p>
+</div>
+
+<div class="hang gon khong-in" style="margin:16px 0">
+  <form method="post" action="/voucher/{{ site.id }}/day"><button class="chinh">Đẩy hết mã mới/lỗi lên router</button></form>
+  <form method="post" action="/voucher/{{ site.id }}/dong-bo"><button>Đồng bộ với router</button></form>
+  <form method="post" action="/voucher/{{ site.id }}/xoa-het-han"><button class="nguy">Xóa mã hết hạn khỏi router</button></form>
+  <a class="nut" href="/voucher/{{ site.id }}/csv">Xuất CSV</a>
+</div>
+
+<h2>Các lô gần đây</h2>
+<div class="the cuon">
+  <table>
+    <tr><th>Lô</th><th>Tạo lúc</th><th>Gói cước</th><th>Số lượng</th><th>Ghi chú</th><th></th></tr>
+    {% for b in lo %}
+    <tr>
+      <td>#{{ b.id }}</td>
+      <td>{{ b.created_at|gio_vn }}</td>
+      <td><code>{{ b.profile_name }}</code></td>
+      <td>{{ b.quantity }}</td>
+      <td class="phu">{{ b.note or "—" }}</td>
+      <td>
+        <a class="nut nho" href="/voucher/{{ site.id }}/in/{{ b.id }}" target="_blank">In phiếu</a>
+        <form method="post" action="/voucher/{{ site.id }}/day/{{ b.id }}" style="display:inline">
+          <button class="nho">Đẩy lô này</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="phu">Chưa sinh lô nào.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

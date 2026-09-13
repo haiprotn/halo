@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{{ site.name }}{% endblock %}
+{% block body %}
+<h1>{{ site.name }}</h1>
+<p class="phu">{{ site.address or "chưa ghi địa chỉ" }} · WireGuard <code>{{ site.wg_ip }}</code>
+  · thư mục portal <code>{{ site.hotspot_dir }}</code></p>
+
+<div class="hang gon khong-in" style="margin-bottom:16px">
+  <form method="post" action="/dia-diem/{{ site.id }}/quet"><button>Quét trạng thái ngay</button></form>
+  <form method="post" action="/dia-diem/{{ site.id }}/kiem-tra"><button>Chạy bảng kiểm tra cấu hình</button></form>
+  <a class="nut" href="/quang-cao/{{ site.id }}">Quảng cáo</a>
+  <a class="nut" href="/voucher/{{ site.id }}">Voucher</a>
+</div>
+
+{% if alerts %}
+  {% for a in alerts %}<div class="bao {{ 'loi' if a.severity == 'error' else 'chu-y' }}">
+    <strong>{{ a.kind }}</strong> — {{ a.message }} <span class="phu">(mở {{ a.opened_at|truoc_day }})</span>
+  </div>{% endfor %}
+{% endif %}
+
+<div class="luoi luoi-2">
+  <div class="the">
+    <h3 style="margin-top:0">Trạng thái router</h3>
+    {% if status %}
+    <table>
+      <tr><td>Kết nối</td><td>
+        {% if status.online %}<span class="chip on">online</span>
+        {% else %}<span class="chip off">mất kết nối</span>{% endif %}</td></tr>
+      <tr><td>Thiết bị</td><td>{{ status.board_name or "—" }} · {{ status.architecture or "?" }}</td></tr>
+      <tr><td>RouterOS</td><td>{{ status.version or "—" }}</td></tr>
+      <tr><td>Uptime</td><td>{{ status.uptime or "—" }}</td></tr>
+      <tr><td>CPU</td><td>{{ status.cpu_load }}%</td></tr>
+      <tr><td>RAM trống</td><td>{{ status.free_memory|dung_luong }} / {{ status.total_memory|dung_luong }}</td></tr>
+      <tr><td>Flash trống</td><td>{{ status.free_hdd|dung_luong }}</td></tr>
+      <tr><td>Khách đang online</td><td>{{ status.hotspot_active }}</td></tr>
+      <tr><td>Phiên User Manager</td><td>{{ status.um_sessions }}</td></tr>
+      <tr><td>Đọc thành công lần cuối</td><td>{{ status.last_ok_at|truoc_day }}</td></tr>
+    </table>
+    {% if status.last_error %}<div class="bao loi" style="margin-top:10px">{{ status.last_error }}</div>{% endif %}
+    {% else %}
+    <p class="phu">Chưa quét lần nào.</p>
+    {% endif %}
+  </div>
+
+  <div class="the">
+    <h3 style="margin-top:0">Voucher</h3>
+    <table>
+      <tr><td>Mới (chưa đẩy)</td><td>{{ dem_voucher.get("moi", 0) }}</td></tr>
+      <tr><td>Đã lên router</td><td>{{ dem_voucher.get("tren_router", 0) }}</td></tr>
+      <tr><td>Đã dùng</td><td>{{ dem_voucher.get("da_dung", 0) }}</td></tr>
+      <tr><td>Hết hạn</td><td>{{ dem_voucher.get("het_han", 0) }}</td></tr>
+      <tr><td>Lỗi khi đẩy</td><td>{{ dem_voucher.get("loi", 0) }}</td></tr>
+      <tr><td>Đã xóa khỏi router</td><td>{{ dem_voucher.get("da_xoa", 0) }}</td></tr>
+    </table>
+    <p class="phu" style="margin-top:10px">
+      Mã “mới” và “lỗi” cũng không có trên router, nhưng đó <strong>không phải</strong> là đã xóa —
+      đừng gộp chung khi đối chiếu.
+    </p>
+
+    <h3>Banner</h3>
+    <p>{{ banners|selectattr("active")|list|length }} ảnh đang bật / {{ banners|length }} ảnh.
+      <a href="/quang-cao/{{ site.id }}">Quản lý</a></p>
+  </div>
+</div>
+
+<h2 id="kiem-tra">Bảng kiểm tra cấu hình</h2>
+{% if last_check %}
+<p class="phu">Chạy lúc {{ last_check.run_at|gio_vn }} — đạt {{ last_check.passed }}/{{ last_check.total }} mục.</p>
+<div class="the">
+  <ul class="kiem-tra" style="list-style:none;padding-left:0">
+    {% for r in last_check.results %}
+    <li class="{{ 'dat' if r.ok else 'hong' }}">
+      <strong>{{ r.name }}</strong>{% if not r.core %} <span class="chip xam">bổ sung</span>{% endif %}
+      <div class="goi-y">{{ r.detail }}</div>
+      {% if not r.ok and r.hint %}<div class="goi-y"><em>Cách xử lý:</em> {{ r.hint }}</div>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% else %}
+<div class="the"><p class="phu">Chưa chạy lần nào. Bấm “Chạy bảng kiểm tra cấu hình” ở trên —
+  14 phép ĐỌC, không sửa gì trên router.</p></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phiếu voucher — {{ site.name }} — lô #{{ batch.id }}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<main>
+  <div class="khong-in" style="margin-bottom:14px">
+    <button onclick="window.print()" class="chinh">In</button>
+    <a class="nut" href="/voucher/{{ site.id }}">Quay lại</a>
+  </div>
+
+  <h1>{{ site.name }} — lô #{{ batch.id }}</h1>
+  <p class="phu">Gói cước <code>{{ batch.profile_name }}</code> · {{ vouchers|length }} mã ·
+    tạo {{ batch.created_at|gio_vn }}</p>
+
+  <div class="phieu">
+    {% for v in vouchers %}
+    <div class="o">
+      <div style="font-size:12px;color:#666">WiFi miễn phí — mã truy cập</div>
+      <div class="ma">{{ v.code }}</div>
+      <div style="font-size:11px;color:#666">Một mã dùng cho một thiết bị</div>
+    </div>
+    {% endfor %}
+  </div>
+</main>
+</body>
+</html>

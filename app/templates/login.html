@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Đăng nhập — Halo{% endblock %}
+{% block body %}
+<div style="max-width:380px;margin:8vh auto">
+  <h1 style="color:var(--do)">Halo</h1>
+  <p class="phu">Cổng quản trị quảng cáo, giám sát và voucher.</p>
+
+  {% if loi %}<div class="bao loi">{{ loi }}</div>{% endif %}
+
+  <form method="post" action="/dang-nhap" class="the">
+    <div class="truong">
+      <label for="username">Tên đăng nhập</label>
+      <input id="username" name="username" autocomplete="username" autofocus required>
+    </div>
+    <div class="truong">
+      <label for="password">Mật khẩu</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+    </div>
+    <button class="chinh" style="width:100%">Đăng nhập</button>
+  </form>
+</div>
+{% endblock %}

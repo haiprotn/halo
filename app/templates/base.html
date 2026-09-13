@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Halo{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+{% if user %}
+<header class="top">
+  <div class="top-inner">
+    <a class="logo" href="/">Halo</a>
+    <nav>
+      <a href="/">Tổng quan</a>
+      <a href="/dia-diem">Địa điểm</a>
+      <a href="/bao-cao">Báo cáo</a>
+      {% if user.is_admin %}<a href="/quan-tri">Quản trị</a><a href="/nhat-ky">Nhật ký</a>{% endif %}
+    </nav>
+    <div class="phai">
+      <span>{{ user.full_name or user.username }}{% if user.is_admin %} · quản trị{% endif %}</span>
+      <a href="/doi-mat-khau">Đổi mật khẩu</a>
+      <a href="/dang-xuat">Thoát</a>
+    </div>
+  </div>
+</header>
+{% endif %}
+
+<main>
+  {% if ok %}<div class="bao ok">{{ ok }}</div>{% endif %}
+  {% if loi %}<div class="bao loi">{{ loi }}</div>{% endif %}
+  {% block body %}{% endblock %}
+</main>
+</body>
+</html>

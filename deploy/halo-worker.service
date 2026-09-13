@@ -1,0 +1,30 @@
+[Unit]
+# Tiến trình quét nền CHẠY RIÊNG với tiến trình web.
+# Đây chính là chỗ giữ lại lợi ích của kiến trúc hai tiến trình cũ: một router
+# treo làm chậm vòng quét cũng không đụng tới việc người dùng bấm nút ở web.
+Description=Halo — tien trinh quet nen
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=halo
+Group=halo
+WorkingDirectory=/srv/app/halo
+EnvironmentFile=/srv/app/halo/.env
+# ProtectSystem=strict khiến thư mục mã nguồn chỉ đọc → Python không ghi được
+# __pycache__. Tắt hẳn cho đỡ thử vô ích, và bỏ đệm để log ra journal ngay.
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/srv/app/halo/venv/bin/python -m app.worker
+Restart=always
+RestartSec=10
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/app/halo/data
+
+[Install]
+WantedBy=multi-user.target

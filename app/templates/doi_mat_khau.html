@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Đổi mật khẩu{% endblock %}
+{% block body %}
+<h1>Đổi mật khẩu</h1>
+<p class="phu">Mật khẩu tài khoản được băm bằng bcrypt, hệ thống không đọc lại được.</p>
+
+<form method="post" class="the" style="max-width:420px">
+  <div class="truong"><label>Mật khẩu hiện tại</label><input name="cu" type="password" required></div>
+  <div class="truong"><label>Mật khẩu mới (tối thiểu 10 ký tự)</label><input name="moi" type="password" required></div>
+  <div class="truong"><label>Nhập lại mật khẩu mới</label><input name="lap_lai" type="password" required></div>
+  <button class="chinh">Lưu</button>
+</form>
+{% endblock %}
